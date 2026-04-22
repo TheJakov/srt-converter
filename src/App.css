@@ -5,6 +5,30 @@
   align-items: center;
   padding: 60px 20px 40px;
   box-sizing: border-box;
+  position: relative;
+}
+
+.theme-toggle {
+  position: fixed;
+  top: 16px;
+  right: 20px;
+  background: var(--toggle-bg);
+  border: 1px solid var(--toggle-border);
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  color: var(--text-h);
+}
+
+.theme-toggle:hover {
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
 }
 
 header {
@@ -202,16 +226,14 @@ main {
   text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  .status.success {
-    color: #4ade80;
-    background: rgba(34, 197, 94, 0.12);
-    border-color: rgba(34, 197, 94, 0.25);
-  }
+[data-theme='dark'] .status.success {
+  color: #4ade80;
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.25);
+}
 
-  .status.error {
-    color: #f87171;
-    background: rgba(239, 68, 68, 0.12);
-    border-color: rgba(239, 68, 68, 0.25);
-  }
+[data-theme='dark'] .status.error {
+  color: #f87171;
+  background: rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25);
 }

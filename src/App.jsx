@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import iconv from 'iconv-lite'
 import chardet from 'chardet'
 import './App.css'
@@ -52,7 +52,16 @@ export default function App() {
   const [outputName, setOutputName] = useState('')
   const [status, setStatus] = useState(null)
   const [dragging, setDragging] = useState(false)
+  const [theme, setTheme] = useState(() =>
+    localStorage.getItem('theme') ||
+    (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+  )
   const inputRef = useRef()
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    localStorage.setItem('theme', theme)
+  }, [theme])
 
   const loadFile = useCallback((f) => {
     if (!f || !f.name.toLowerCase().endsWith('.srt')) {
@@ -116,6 +125,14 @@ export default function App() {
 
   return (
     <div className="app">
+      <button
+        className="theme-toggle"
+        onClick={() => setTheme(t => t === 'dark' ? 'light' : 'dark')}
+        aria-label="Toggle theme"
+      >
+        {theme === 'dark' ? '☀' : '☽'}
+      </button>
+
       <header>
         <h1>SRT Converter</h1>
         <p>Convert subtitle files to any encoding</p>
