@@ -39,6 +39,11 @@ const OUTPUT_ENCODINGS = [
 
 const FILE_SYSTEM_ACCESS_SUPPORTED = 'showSaveFilePicker' in window
 
+const encodingSuffix = (enc) => enc.toLowerCase().replace(/[^a-z0-9]/g, '')
+
+const buildOutputName = (fileName, enc) =>
+  fileName.replace(/\.srt$/i, `_${encodingSuffix(enc)}.srt`)
+
 export default function App() {
   const [file, setFile] = useState(null)
   const [fileBuffer, setFileBuffer] = useState(null)
@@ -61,7 +66,7 @@ export default function App() {
       setFile(f)
       setFileBuffer(buffer)
       setDetectedEncoding(detected)
-      setOutputName(f.name.replace(/\.srt$/i, '_utf8.srt'))
+      setOutputName(buildOutputName(f.name, outputEncoding))
       setStatus(null)
     }
     reader.readAsArrayBuffer(f)
@@ -157,7 +162,10 @@ export default function App() {
               <label>Output encoding</label>
               <select
                 value={outputEncoding}
-                onChange={(e) => setOutputEncoding(e.target.value)}
+                onChange={(e) => {
+                  setOutputEncoding(e.target.value)
+                  if (file) setOutputName(buildOutputName(file.name, e.target.value))
+                }}
               >
                 {OUTPUT_ENCODINGS.map(({ group, options }) => (
                   <optgroup key={group} label={group}>
