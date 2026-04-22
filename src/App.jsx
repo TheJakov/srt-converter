@@ -4,14 +4,37 @@ import chardet from 'chardet'
 import './App.css'
 
 const OUTPUT_ENCODINGS = [
-  'UTF-8',
-  'UTF-16LE',
-  'UTF-16BE',
-  'windows-1250',
-  'windows-1251',
-  'windows-1252',
-  'ISO-8859-1',
-  'ISO-8859-2',
+  { group: 'Unicode', options: [
+    { value: 'UTF-8',    label: 'UTF-8' },
+    { value: 'UTF-16LE', label: 'UTF-16LE' },
+    { value: 'UTF-16BE', label: 'UTF-16BE' },
+    { value: 'UTF-32LE', label: 'UTF-32LE' },
+    { value: 'UTF-32BE', label: 'UTF-32BE' },
+  ]},
+  { group: 'Windows', options: [
+    { value: 'windows-1250', label: 'windows-1250 — Central European (Croatian, Czech, Polish, Slovak)' },
+    { value: 'windows-1251', label: 'windows-1251 — Cyrillic (Russian, Bulgarian, Ukrainian)' },
+    { value: 'windows-1252', label: 'windows-1252 — Western European (English, French, German, Spanish)' },
+    { value: 'windows-1253', label: 'windows-1253 — Greek' },
+    { value: 'windows-1254', label: 'windows-1254 — Turkish' },
+    { value: 'windows-1256', label: 'windows-1256 — Arabic' },
+  ]},
+  { group: 'ISO-8859', options: [
+    { value: 'ISO-8859-1', label: 'ISO-8859-1 — Western European (legacy)' },
+    { value: 'ISO-8859-2', label: 'ISO-8859-2 — Central European (legacy)' },
+  ]},
+  { group: 'Cyrillic', options: [
+    { value: 'KOI8-R', label: 'KOI8-R — Russian' },
+    { value: 'KOI8-U', label: 'KOI8-U — Ukrainian' },
+  ]},
+  { group: 'East Asian', options: [
+    { value: 'GBK',       label: 'GBK — Simplified Chinese' },
+    { value: 'GB2312',    label: 'GB2312 — Simplified Chinese (legacy)' },
+    { value: 'Big5',      label: 'Big5 — Traditional Chinese' },
+    { value: 'Shift_JIS', label: 'Shift_JIS — Japanese' },
+    { value: 'EUC-JP',    label: 'EUC-JP — Japanese (Unix)' },
+    { value: 'EUC-KR',    label: 'EUC-KR — Korean' },
+  ]},
 ]
 
 const FILE_SYSTEM_ACCESS_SUPPORTED = 'showSaveFilePicker' in window
@@ -136,8 +159,12 @@ export default function App() {
                 value={outputEncoding}
                 onChange={(e) => setOutputEncoding(e.target.value)}
               >
-                {OUTPUT_ENCODINGS.map((enc) => (
-                  <option key={enc} value={enc}>{enc}</option>
+                {OUTPUT_ENCODINGS.map(({ group, options }) => (
+                  <optgroup key={group} label={group}>
+                    {options.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </optgroup>
                 ))}
               </select>
             </div>

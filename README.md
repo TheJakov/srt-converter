@@ -8,7 +8,7 @@ Convert SRT subtitle files between encodings — drag, detect, convert, save.
 
 - Drag & drop or browse for an `.srt` file
 - Auto-detects the source encoding
-- Choose any output encoding (UTF-8, windows-1250, windows-1251, ISO-8859-x, and more)
+- Choose output encoding from a grouped list: Unicode (UTF-8/16/32), Windows code pages (1250–1258), ISO-8859 (1, 2), Cyrillic (KOI8), and East Asian (GBK, Big5, Shift_JIS, EUC-JP/KR)
 - Native save dialog — choose exactly where the file is saved
 - Dark mode support
 
