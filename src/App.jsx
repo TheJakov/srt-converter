@@ -1,7 +1,7 @@
-import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
-import iconv from 'iconv-lite'
-import chardet from 'chardet'
-import './App.css'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react';
+import iconv from 'iconv-lite';
+import chardet from 'chardet';
+import './App.css';
 
 const OUTPUT_ENCODINGS = [
   { group: 'Unicode', options: [
@@ -35,105 +35,105 @@ const OUTPUT_ENCODINGS = [
     { value: 'EUC-JP',    label: 'EUC-JP — Japanese (Unix)' },
     { value: 'EUC-KR',    label: 'EUC-KR — Korean' },
   ]},
-]
+];
 
-const FILE_SYSTEM_ACCESS_SUPPORTED = 'showSaveFilePicker' in window
+const FILE_SYSTEM_ACCESS_SUPPORTED = 'showSaveFilePicker' in window;
 
-const encodingSuffix = (enc) => enc.toLowerCase().replace(/[^a-z0-9]/g, '')
+const encodingSuffix = (enc) => enc.toLowerCase().replace(/[^a-z0-9]/g, '');
 
 const buildOutputName = (fileName, enc) =>
-  fileName.replace(/\.srt$/i, `_${encodingSuffix(enc)}.srt`)
+  fileName.replace(/\.srt$/i, `_${encodingSuffix(enc)}.srt`);
 
 export default function App() {
-  const [file, setFile] = useState(null)
-  const [fileBuffer, setFileBuffer] = useState(null)
-  const [detectedEncoding, setDetectedEncoding] = useState(null)
-  const [outputEncoding, setOutputEncoding] = useState('UTF-8')
-  const [outputName, setOutputName] = useState('')
-  const [status, setStatus] = useState(null)
-  const [dragging, setDragging] = useState(false)
+  const [file, setFile] = useState(null);
+  const [fileBuffer, setFileBuffer] = useState(null);
+  const [detectedEncoding, setDetectedEncoding] = useState(null);
+  const [outputEncoding, setOutputEncoding] = useState('UTF-8');
+  const [outputName, setOutputName] = useState('');
+  const [status, setStatus] = useState(null);
+  const [dragging, setDragging] = useState(false);
   const [theme, setTheme] = useState(() =>
     localStorage.getItem('theme') ||
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-  )
-  const inputRef = useRef()
+  );
+  const inputRef = useRef();
 
   const preview = useMemo(() => {
-    if (!fileBuffer || !detectedEncoding) return null
+    if (!fileBuffer || !detectedEncoding) return null;
     try {
-      const decoded = iconv.decode(fileBuffer, detectedEncoding)
-      const reencoded = iconv.encode(decoded, outputEncoding)
-      const text = iconv.decode(reencoded, outputEncoding)
-      return text.split('\n').slice(0, 20).join('\n')
+      const decoded = iconv.decode(fileBuffer, detectedEncoding);
+      const reencoded = iconv.encode(decoded, outputEncoding);
+      const text = iconv.decode(reencoded, outputEncoding);
+      return text.split('\n').slice(0, 20).join('\n');
     } catch {
-      return null
+      return null;
     }
-  }, [fileBuffer, detectedEncoding, outputEncoding])
+  }, [fileBuffer, detectedEncoding, outputEncoding]);
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
-    localStorage.setItem('theme', theme)
-  }, [theme])
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   const loadFile = useCallback((f) => {
     if (!f || !f.name.toLowerCase().endsWith('.srt')) {
-      setStatus({ type: 'error', message: 'Please select a .srt file.' })
-      return
+      setStatus({ type: 'error', message: 'Please select a .srt file.' });
+      return;
     }
-    const reader = new FileReader()
+    const reader = new FileReader();
     reader.onload = (e) => {
-      const buffer = Buffer.from(e.target.result)
-      const detected = chardet.detect(buffer) || 'windows-1250'
-      setFile(f)
-      setFileBuffer(buffer)
-      setDetectedEncoding(detected)
-      setOutputName(buildOutputName(f.name, outputEncoding))
-      setStatus(null)
-    }
-    reader.readAsArrayBuffer(f)
-  }, [])
+      const buffer = Buffer.from(e.target.result);
+      const detected = chardet.detect(buffer) || 'windows-1250';
+      setFile(f);
+      setFileBuffer(buffer);
+      setDetectedEncoding(detected);
+      setOutputName(buildOutputName(f.name, outputEncoding));
+      setStatus(null);
+    };
+    reader.readAsArrayBuffer(f);
+  }, [outputEncoding]);
 
-  const onFileInput = (e) => loadFile(e.target.files[0])
+  const onFileInput = (e) => loadFile(e.target.files[0]);
 
   const onDrop = (e) => {
-    e.preventDefault()
-    setDragging(false)
-    loadFile(e.dataTransfer.files[0])
-  }
+    e.preventDefault();
+    setDragging(false);
+    loadFile(e.dataTransfer.files[0]);
+  };
 
-  const onDragOver = (e) => { e.preventDefault(); setDragging(true) }
-  const onDragLeave = () => setDragging(false)
+  const onDragOver = (e) => { e.preventDefault(); setDragging(true); };
+  const onDragLeave = () => setDragging(false);
 
   const convert = async () => {
-    if (!fileBuffer) return
+    if (!fileBuffer) return;
     try {
-      const decoded = iconv.decode(fileBuffer, detectedEncoding)
-      const encoded = iconv.encode(decoded, outputEncoding)
-      const blob = new Blob([encoded], { type: 'application/octet-stream' })
+      const decoded = iconv.decode(fileBuffer, detectedEncoding);
+      const encoded = iconv.encode(decoded, outputEncoding);
+      const blob = new Blob([encoded], { type: 'application/octet-stream' });
 
       if (FILE_SYSTEM_ACCESS_SUPPORTED) {
         const handle = await window.showSaveFilePicker({
           suggestedName: outputName,
           types: [{ description: 'SRT subtitle', accept: { 'text/plain': ['.srt'] } }],
-        })
-        const writable = await handle.createWritable()
-        await writable.write(blob)
-        await writable.close()
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
       } else {
-        const url = URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = outputName
-        a.click()
-        URL.revokeObjectURL(url)
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = outputName;
+        a.click();
+        URL.revokeObjectURL(url);
       }
-      setStatus({ type: 'success', message: `Saved as "${outputName}"` })
+      setStatus({ type: 'success', message: `Saved as "${outputName}"` });
     } catch (err) {
       if (err.name !== 'AbortError') {
-        setStatus({ type: 'error', message: `Error: ${err.message}` })
+        setStatus({ type: 'error', message: `Error: ${err.message}` });
       }
     }
-  }
+  };
 
   return (
     <div className="app">
@@ -203,8 +203,8 @@ export default function App() {
               <select
                 value={outputEncoding}
                 onChange={(e) => {
-                  setOutputEncoding(e.target.value)
-                  if (file) setOutputName(buildOutputName(file.name, e.target.value))
+                  setOutputEncoding(e.target.value);
+                  if (file) setOutputName(buildOutputName(file.name, e.target.value));
                 }}
               >
                 {OUTPUT_ENCODINGS.map(({ group, options }) => (
@@ -248,5 +248,5 @@ export default function App() {
         )}
       </main>
     </div>
-  )
+  );
 }
