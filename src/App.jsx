@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useEffect } from 'react'
+import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import iconv from 'iconv-lite'
 import chardet from 'chardet'
 import './App.css'
@@ -57,6 +57,18 @@ export default function App() {
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
   )
   const inputRef = useRef()
+
+  const preview = useMemo(() => {
+    if (!fileBuffer || !detectedEncoding) return null
+    try {
+      const decoded = iconv.decode(fileBuffer, detectedEncoding)
+      const reencoded = iconv.encode(decoded, outputEncoding)
+      const text = iconv.decode(reencoded, outputEncoding)
+      return text.split('\n').slice(0, 20).join('\n')
+    } catch {
+      return null
+    }
+  }, [fileBuffer, detectedEncoding, outputEncoding])
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
@@ -172,7 +184,18 @@ export default function App() {
           <div className="details">
             <div className="field">
               <label>Detected encoding</label>
-              <div className="detected-badge">{detectedEncoding}</div>
+              <select
+                value={detectedEncoding || ''}
+                onChange={(e) => setDetectedEncoding(e.target.value)}
+              >
+                {OUTPUT_ENCODINGS.map(({ group, options }) => (
+                  <optgroup key={group} label={group}>
+                    {options.map(({ value, label }) => (
+                      <option key={value} value={value}>{label}</option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
             </div>
 
             <div className="field">
@@ -193,6 +216,13 @@ export default function App() {
                 ))}
               </select>
             </div>
+
+            {preview && (
+              <div className="field">
+                <label>Output preview</label>
+                <pre className="preview">{preview}</pre>
+              </div>
+            )}
 
             <div className="field">
               <label>Output filename</label>

@@ -36,6 +36,7 @@
   --text-h: #f3f4f6;
   --bg: #0f0f13;
   --border: #2e303a;
+  --code-bg: #1a1b22;
   --accent: #a78bfa;
   --accent-bg: rgba(167, 139, 250, 0.1);
   --accent-border: rgba(167, 139, 250, 0.35);
@@ -48,6 +49,7 @@
   --text-h: #08060d;
   --bg: #f7f6f3;
   --border: #e0ded9;
+  --code-bg: #eeecea;
   --accent: #7c3aed;
   --accent-bg: rgba(124, 58, 237, 0.08);
   --accent-border: rgba(124, 58, 237, 0.3);
